@@ -1,0 +1,9 @@
+﻿---
+BasedOnStyle: Google
+BinPackArguments: 'false'
+BinPackParameters: 'true'
+ColumnLimit: '120'
+SortIncludes: 'false'
+TabWidth: '2'
+
+...
