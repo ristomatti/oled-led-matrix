@@ -5,17 +5,7 @@
 #include "oled.hpp"
 #include "led.hpp"
 #include "buzzer.hpp"
-
-const char *wifiSsid = "";
-const char *wifiPassword = "";
-
-const char *mqttHost = "";
-const char *mqttUser = "";
-const char *mqttPassword = "";
-
-const char *statusTopic = "";
-const char *ledTopic = "";
-const char *oledTopic = "";
+#include "config.h"
 
 void callback(char *topic, byte *payload, unsigned int length);
 void mqttPublished(void *response);
