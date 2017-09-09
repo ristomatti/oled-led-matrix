@@ -2,9 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <SimpleTimer.h>
-#include "oled.hpp"
-#include "led.hpp"
-#include "buzzer.hpp"
+#include "oled.h"
+#include "led.h"
+#include "buzzer.h"
 #include "config.h"
 
 void callback(char *topic, byte *payload, unsigned int length);
