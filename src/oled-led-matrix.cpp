@@ -2,10 +2,11 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <SimpleTimer.h>
+#include <string.h>
+#include "config.h"
 #include "oled.h"
 #include "led.h"
 #include "buzzer.h"
-#include "config.h"
 
 void callback(char *topic, byte *payload, unsigned int length);
 void mqttPublished(void *response);
@@ -14,18 +15,25 @@ String macToStr(const uint8_t *mac);
 WiFiClient wifiClient;
 PubSubClient mqtt(mqttHost, 1883, callback, wifiClient);
 SimpleTimer timer;
+EspClass esp;
 
 void setup() {
+  oledSetup(); // has to be done before Serial.begin()
+
   Serial.begin(115200);
 
   ledSetup();
-  oledSetup();
   buzzerSetup();
 
-  delay(10);
+  Serial.println();
+  Serial.println();
 
-  Serial.println();
-  Serial.println();
+  // Print free heap every 3 seconds for debugging purposes
+  timer.setInterval(3000, []() {
+    Serial.print("Free heap: ");
+    Serial.println(esp.getFreeHeap());
+  });
+
   Serial.print("Connecting to ");
   Serial.println(wifiSsid);
 
@@ -54,6 +62,8 @@ void setup() {
   Serial.print(" as ");
   Serial.println(clientName);
 
+  Serial.println(esp.getFreeHeap());
+
   if (mqtt.connect((char *)clientName.c_str(), mqttUser, mqttPassword, statusTopic, 1, true, "offline")) {
     Serial.println("Connected to MQTT broker");
     Serial.print("Topic is: ");
@@ -72,15 +82,18 @@ void setup() {
     Serial.println("Will reset and try again...");
     abort();
   }
+
+  // Turn board LED off
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
-  timer.run();
-
   mqtt.loop();
   oledLoop();
   ledLoop();
   buzzerLoop();
+  timer.run();
 }
 
 void callback(char *topic, byte *payload, unsigned int length) {
@@ -89,6 +102,9 @@ void callback(char *topic, byte *payload, unsigned int length) {
   Serial.print(topic);
   Serial.print(":\t");
   Serial.println(data);
+  if (strcmp(topic, oledTopic) == 0) {
+    printMessage((char *)payload);
+  }
 }
 
 void mqttPublished(void *response) {}
